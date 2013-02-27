@@ -53,7 +53,7 @@ module UbiquoJobs
 
         # Update state accordingly to the result
         new_state = unless job_successfully_done
-          tries >= 3 ? STATES[:error] : STATES[:waiting]
+          tries >= max_retries ? STATES[:error] : STATES[:waiting]
         else
           notify_finished
           STATES[:finished]
@@ -71,6 +71,10 @@ module UbiquoJobs
         # Reset to the original error out
         STDERR.reopen(orig_stderr)
         new_stderr.close!
+      end
+
+      def max_retries
+        3
       end
 
       # This is where the work of a job shall be. Returns a result code (0 if run without errors, !=0 otherwise)
